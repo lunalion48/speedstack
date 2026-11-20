@@ -188,6 +188,30 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
 .t-manual input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--f-num);font-size:22px}
 .t-list h3{font-size:14px;color:var(--muted);margin:4px 0;font-weight:600}
 .t-list .recs{padding:0}
+/* ---------- 결과표 ---------- */
+.evtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:640px}
+.evtabs button{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 8px;font-family:var(--f-num);font-weight:700;font-size:24px;color:var(--muted);display:grid;gap:2px}
+.evtabs button small{font-family:var(--f-body);font-size:12px;font-weight:500}
+.cnttabs{justify-self:start}
+.cnttabs button{font-size:16px;padding:10px 22px}
+.cnttabs button[aria-selected=true]{background:var(--fg);color:var(--ink)}
+.evtabs button[aria-selected=true]{background:var(--fg);color:var(--ink);border-color:transparent}
+#view-results .res{max-width:1400px;margin:0 auto;display:grid;gap:14px}
+.res-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.res-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.res-table th,.res-table td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.res-table th{font-size:13px;color:var(--muted);font-weight:600;background:var(--panel-2);position:sticky;top:0}
+.res-table th:nth-child(-n+2),.res-table td:nth-child(-n+2){text-align:left}
+.res-table tr:last-child td{border-bottom:0}
+.res-table .rcol{font-family:var(--f-display);font-size:20px;width:60px}
+.res-table .rname{font-family:var(--f-display);font-size:22px}
+.res-table .best{font-family:var(--f-num);font-weight:700;font-size:28px}
+.res-table .t{font-family:var(--f-num);font-size:20px;color:var(--muted)}
+.res-table .t.is-best{color:var(--fg);font-weight:700}
+.res-table tr.p1 .rcol{color:#ffd700}.res-table tr.p1 .best{color:#ffd700}
+.res-table tr.p2 .rcol{color:#d9dee8}
+.res-table tr.p3 .rcol{color:#e3a36b}
+.res-table tr.none td{color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--ink);padding:12px 18px;border-radius:12px;font-weight:700;z-index:30;max-width:calc(100% - 32px);text-align:center}
 
 @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
@@ -214,6 +238,11 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
         <b>선생님 타이머</b>
         <span>휴대폰이나 태블릿에서 엽니다. 우리 반을 고르고 시작/정지를 누르면 기록이 진행판으로 갑니다.</span>
       </a>
+      <a class="home-card" href="#results">
+        <div class="cups"><i class="cup" style="background:var(--gold)"></i></div>
+        <b>결과표</b>
+        <span>1반부터 8반까지 순위, 최고 기록, 회차별 기록을 한 표로 봅니다. 엑셀로 복사할 수 있어요.</span>
+      </a>
     </div>
     <div class="home-note">
       <span id="home-conn"></span>
@@ -233,6 +262,7 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
       <button class="btn ghost board-only-tools" id="b-settings" type="button">설정</button>
       <button class="btn ghost" id="b-present" type="button" title="버튼을 숨기고 기록만 보여줍니다">발표 모드</button>
       <button class="btn" id="b-full" type="button">전체 화면 <kbd>F</kbd></button>
+      <a class="btn ghost board-only-tools" href="#results">결과표</a>
       <a class="btn ghost board-only-tools" href="#home">처음으로</a>
     </div>
   </div>
@@ -242,6 +272,19 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
 </div>
 
 <div id="view-timer" class="view" hidden></div>
+
+<div id="view-results" class="view" hidden>
+  <div class="res">
+    <div class="bar">
+      <div class="title"><h1 id="r-title"></h1></div>
+      <div class="tools"><span id="r-conn"></span><button class="btn" type="button" id="r-copy">엑셀용으로 복사</button><button class="btn danger" type="button" id="r-reset">이 표 초기화</button><a class="btn ghost" href="#board">진행판</a><a class="btn ghost" href="#home">처음으로</a></div>
+    </div>
+    <div class="evtabs" id="r-tabs" role="tablist"></div>
+    <div class="seg cnttabs" id="r-cnt" role="tablist"></div>
+    <p class="hint">순위는 반마다 가장 빠른 기록으로 매겨요. 기록이 들어오면 표가 바로 바뀌어요.</p>
+    <div class="res-wrap"><table class="res-table" id="r-table"></table></div>
+  </div>
+</div>
 
 <div class="sheet-bg" id="settings" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="set-h">
@@ -383,9 +426,18 @@ const slotOf = id => boardSlots().find(sl => classAt(sl) === id) || null;
 const activeSlots = () => boardSlots().map(classAt).filter(Boolean);   /* 지금 중앙 화면에 나온 반들 */
 const nameOf = id => ((S().names || {})[id] || DEFAULT_NAMES[id]);
 const colorOf = id => { const sl = slotOf(id); return sl ? SLOT_COLORS[sl] : 'var(--fg)'; };
-function recordsOf(id){
+/* 기록은 종목(3-3-3, 3-6-3, 사이클)마다 따로 셉니다. 종목 표시가 없는 옛 기록은 3-3-3으로 봅니다. */
+/* 4팀 경기와 2팀 경기도 따로 셉니다. 표시가 없는 옛 기록은 4팀으로 봅니다. */
+const evOf = x => x.ev || '3-3-3';
+const cntOf = x => x.cnt === 2 ? 2 : 4;
+/* 진행판 초기화는 기록을 지우지 않고 "이 시각 이후 기록만 진행판에 보이기"로 처리해요. 결과표에는 그대로 남아요. */
+const boardKey = (id, ev, cnt) => `${id}_${ev}_${cnt}`.replace(/[.#$\[\]\/]/g, '');
+function recordsOf(id, ev, cnt){
+  const forBoard = !ev;   /* 종목을 지정하지 않으면 진행판·휴대폰용(초기화 이후 기록만) */
+  ev = ev || S().event; cnt = cnt || boardSlots().length;
+  const from = forBoard ? ((S().boardFrom || {})[boardKey(id, ev, cnt)] || 0) : 0;
   const r = (Store.state.records || {})[id] || {};
-  const all = Object.entries(r).map(([k,v]) => ({id:k, ...v})).filter(x => typeof x.ms === 'number');
+  const all = Object.entries(r).map(([k,v]) => ({id:k, ...v})).filter(x => typeof x.ms === 'number' && evOf(x) === ev && cntOf(x) === cnt && (x.at || 0) > from);
   const span = x => x.startAt ? [x.startAt, x.startAt + x.ms] : [x.at - x.ms - 15000, x.at];
   const phone = all.filter(x => x.kind === 'p').map(span);
   /* 중앙 기록과 같은 시도를 휴대폰이 보냈으면 휴대폰 기록만 씁니다 */
@@ -395,8 +447,8 @@ function recordsOf(id){
     return !phone.some(([pa, pb]) => pa <= b + 3000 && a <= pb + 3000);
   }).sort((a,b) => a.at - b.at);
 }
-function statsOf(id){
-  const rs = recordsOf(id);
+function statsOf(id, ev, cnt){
+  const rs = recordsOf(id, ev, cnt);
   if(!rs.length) return {n:0, rs};
   let best = rs[0];
   for(const r of rs) if(r.ms < best.ms) best = r;
@@ -550,7 +602,7 @@ const board = {
     if(L && L.state === 'run'){
       const loc = this.local[id];
       const ms = Math.round(loc && loc.startAt === L.startAt ? performance.now() - loc.perf : Store.now() - L.startAt);
-      Store.push('records/' + id, {ms, who:'', at:Store.now(), startAt:L.startAt, kind:'c', src:'중앙'});
+      Store.push('records/' + id, {ev:S().event, cnt:boardSlots().length, ms, who:'', at:Store.now(), startAt:L.startAt, kind:'c', src:'중앙'});
       Store.set('live/' + id + '/c', {state:'done', elapsed:ms, startAt:L.startAt, t:Store.now(), src:'중앙'});
       delete this.local[id];
     } else {
@@ -579,8 +631,8 @@ document.getElementById('b-grid').addEventListener('click', e => {
   const rs = e.target.closest('[data-reset]');
   if(rs) armed(rs, '한 번 더 누르면 지워져요', '초기화', () => {
     const id = rs.dataset.reset;
-    Store.set('records/' + id, null); Store.set('live/' + id, null); delete board.local[id];
-    toast(nameOf(id) + ' 기록을 모두 지웠어요.');
+    clearEvent([id]); Store.set('live/' + id, null); delete board.local[id];
+    toast(`${nameOf(id)} 진행판을 비웠어요. 결과표 기록은 그대로예요.`);
   });
 });
 /* 실수로 지우지 않도록 4초 안에 두 번 눌러야 지워집니다 */
@@ -589,10 +641,14 @@ function armed(btn, warn, label, action){
   btn.dataset.armed = Date.now(); btn.textContent = warn;
   setTimeout(() => { if(btn.dataset.armed){ delete btn.dataset.armed; btn.textContent = label; } }, 4000);
 }
-document.getElementById('b-resetall').onclick = e => armed(e.currentTarget, '한 번 더 누르면 모든 반 기록이 지워져요', '전체 초기화', () => {
-  Store.set('records', null); Store.set('live', null); board.local = {};
-  toast('모든 반의 기록을 지웠어요.');
+document.getElementById('b-resetall').onclick = e => armed(e.currentTarget, '한 번 더 누르면 진행판이 비워져요', '전체 초기화', () => {
+  clearEvent(CLASSES); Store.set('live', null); board.local = {};
+  toast('진행판을 모두 비웠어요. 결과표 기록은 그대로예요.');
 });
+function clearEvent(ids){
+  const ev = S().event, cnt = boardSlots().length, now = Store.now();
+  for(const id of ids) Store.set('settings/boardFrom/' + boardKey(id, ev, cnt), now);
+}
 document.getElementById('b-full').onclick = toggleFull;
 /* 화면에 나온 모든 반의 중앙 타이머를 같은 순간에 시작합니다. 정지는 반마다 따로 눌러요. */
 function startAll(){
@@ -617,7 +673,7 @@ function stopAll(){
     if(!L || L.state !== 'run') continue;
     const loc = board.local[id];
     const ms = Math.round(loc && loc.startAt === L.startAt ? perf - loc.perf : now - L.startAt);
-    Store.push('records/' + id, {ms, who:'', at:now, startAt:L.startAt, kind:'c', src:'중앙'});
+    Store.push('records/' + id, {ev:S().event, cnt:boardSlots().length, ms, who:'', at:now, startAt:L.startAt, kind:'c', src:'중앙'});
     Store.set('live/' + id + '/c', {state:'done', elapsed:ms, startAt:L.startAt, t:now, src:'중앙'});
     delete board.local[id];
     n++;
@@ -679,7 +735,7 @@ document.getElementById('set-clear-ex').onclick = () => {
 let clearArm = 0;
 document.getElementById('set-clear-all').onclick = e => {
   if(Date.now() - clearArm > 4000){ clearArm = Date.now(); e.target.textContent = '한 번 더 누르면 모두 지워져요'; setTimeout(() => e.target.textContent = '모든 기록 지우기', 4000); return; }
-  clearArm = 0; Store.set('records', null); Store.set('live', null);
+  clearArm = 0; Store.set('records', null); Store.set('live', null); Store.set('settings/boardFrom', null);
   e.target.textContent = '모든 기록 지우기'; toast('모든 기록을 지웠어요.');
 };
 
@@ -758,7 +814,7 @@ const timer = {
     } else if(a === 'stop'){
       /* 정지하면 바로 진행판으로 보냅니다. 잘못 잰 기록은 아래 목록의 ✕로 지워요. */
       this.elapsed = Math.round(now - this.perf); this.phase = 'idle';
-      Store.push('records/' + id, {ms:this.elapsed, who:this.who(), at:Store.now(), startAt:this.startAt, kind:'p', src:'선생님'});
+      Store.push('records/' + id, {ev:S().event, cnt:boardSlots().length, ms:this.elapsed, who:this.who(), at:Store.now(), startAt:this.startAt, kind:'p', src:'선생님'});
       Store.set('live/' + id + '/p', {state:'done', elapsed:this.elapsed, startAt:this.startAt, t:Store.now(), who:this.who(), src:'선생님'});
       toast(`${nameOf(id)} ${fmt(this.elapsed)}초를 보냈어요. 잘못 쟀으면 아래 목록에서 ✕를 누르세요.`);
       const w = document.getElementById('t-who'); if(w) w.value = '';
@@ -782,7 +838,7 @@ tv.addEventListener('submit', e => {
   e.preventDefault();
   const i = document.getElementById('t-man'); const ms = parseTime(i.value);
   if(ms == null || ms <= 0){ toast('시간은 7.42 또는 1:02.35 처럼 적어 주세요.'); return; }
-  Store.push('records/' + timer.cls, {ms, who:timer.who(), at:Store.now(), kind:'p', src:'선생님 입력'});
+  Store.push('records/' + timer.cls, {ev:S().event, cnt:boardSlots().length, ms, who:timer.who(), at:Store.now(), kind:'p', src:'선생님 입력'});
   Store.set('live/' + timer.cls + '/p', {state:'done', elapsed:ms, t:Store.now(), who:timer.who(), src:'선생님 입력'});
   toast(`${nameOf(timer.cls)} ${fmt(ms)}초를 진행판에 보냈어요.`);
   i.value = '';
@@ -794,12 +850,68 @@ document.addEventListener('keydown', e => {
   if(timer.phase === 'idle') timer.act('start'); else if(timer.phase === 'run') timer.act('stop');
 });
 
+/* ---------------- 결과표 ---------------- */
+function resultRows(ev, cnt){
+  const rows = CLASSES.map(id => ({id, st:statsOf(id, ev, cnt)}));
+  rows.sort((a, b) => (a.st.n ? a.st.best : Infinity) - (b.st.n ? b.st.best : Infinity) || CLASSES.indexOf(a.id) - CLASSES.indexOf(b.id));
+  let place = 0, prev = null;
+  rows.forEach((r, i) => { if(!r.st.n) return; const c = Math.floor(r.st.best/10); if(c !== prev){ place = i + 1; prev = c; } r.place = place; });
+  return rows;
+}
+const results = {
+  ev:null, cnt:null,
+  render(){
+    const s = S();
+    const ev = this.ev || s.event, cnt = this.cnt || boardSlots().length;
+    document.getElementById('r-title').textContent = s.title + ' 결과';
+    document.getElementById('r-conn').innerHTML = connPill();
+    document.getElementById('r-tabs').innerHTML = EVENTS.map(v => {
+      const n = CLASSES.reduce((a, id) => a + recordsOf(id, v, 2).length + recordsOf(id, v, 4).length, 0);
+      return `<button type="button" role="tab" data-ev="${v}" aria-selected="${v === ev}">${v}<small>기록 ${n}개${v === s.event ? ' · 진행 중' : ''}</small></button>`;
+    }).join('');
+    document.getElementById('r-cnt').innerHTML = [4, 2].map(c => {
+      const n = CLASSES.reduce((a, id) => a + recordsOf(id, ev, c).length, 0);
+      return `<button type="button" role="tab" data-cnt="${c}" aria-selected="${c === cnt}">${c}팀 경기 · ${n}개</button>`;
+    }).join('');
+    const rows = resultRows(ev, cnt);
+    const maxN = Math.max(1, ...rows.map(r => r.st.n));
+    const head = `<tr><th>순위</th><th>반</th><th>최고 기록</th><th>기록 수</th>${Array.from({length:maxN}, (_, i) => `<th>${i+1}회</th>`).join('')}</tr>`;
+    const body = rows.map(r => `<tr class="${r.place ? 'p' + r.place : 'none'}">
+      <td class="rcol">${r.place ? r.place + '위' : '–'}</td>
+      <td class="rname">${esc(nameOf(r.id))}</td>
+      <td class="best">${r.st.n ? fmt(r.st.best) : '–'}</td>
+      <td>${r.st.n}</td>
+      ${Array.from({length:maxN}, (_, i) => { const x = r.st.rs[i]; return `<td class="t ${x && x.id === r.st.bestId ? 'is-best' : ''}">${x ? fmt(x.ms) : ''}</td>`; }).join('')}
+    </tr>`).join('');
+    document.getElementById('r-table').innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
+  }
+};
+document.getElementById('r-reset').onclick = e => {
+  const ev = results.ev || S().event, cnt = results.cnt || boardSlots().length;
+  armed(e.currentTarget, `한 번 더 누르면 ${ev} ${cnt}팀 기록이 지워져요`, '이 표 초기화', () => {
+    const recs = Store.state.records || {};
+    for(const id in recs) for(const rid in recs[id]){ const x = recs[id][rid] || {}; if(evOf(x) === ev && cntOf(x) === cnt) Store.set(`records/${id}/${rid}`, null); }
+    toast(`${ev} ${cnt}팀 경기 결과를 지웠어요.`);
+  });
+};
+document.getElementById('r-cnt').addEventListener('click', e => { const b = e.target.closest('[data-cnt]'); if(b){ results.cnt = +b.dataset.cnt; results.render(); } });
+document.getElementById('r-tabs').addEventListener('click', e => { const b = e.target.closest('[data-ev]'); if(b){ results.ev = b.dataset.ev; results.render(); } });
+document.getElementById('r-copy').onclick = async () => {
+  const ev = results.ev || S().event, cnt = results.cnt || boardSlots().length;
+  const rows = resultRows(ev, cnt);
+  const maxN = Math.max(1, ...rows.map(r => r.st.n));
+  const lines = [ev + ' ' + cnt + '팀 경기 결과', ['순위','반','최고 기록','기록 수', ...Array.from({length:maxN}, (_, i) => (i+1) + '회')].join('\t')];
+  for(const r of rows) lines.push([r.place ? r.place + '위' : '', nameOf(r.id), r.st.n ? fmt(r.st.best) : '', r.st.n, ...Array.from({length:maxN}, (_, i) => r.st.rs[i] ? fmt(r.st.rs[i].ms) : '')].join('\t'));
+  try{ await navigator.clipboard.writeText(lines.join('\n')); toast('표를 복사했어요. 엑셀이나 한글 표에 붙여 넣으세요.'); }
+  catch(e){ const sel = window.getSelection(), rg = document.createRange(); rg.selectNode(document.getElementById('r-table')); sel.removeAllRanges(); sel.addRange(rg); toast('표를 선택해 두었어요. Ctrl+C를 눌러 복사하세요.'); }
+};
+
 /* ---------------- 화면 전환 ---------------- */
 let currentView = 'home';
 function route(){
   const h = location.hash.replace('#','');
-  currentView = ['board','timer'].includes(h) ? h : 'home';
-  for(const v of ['home','board','timer']) document.getElementById('view-' + v).hidden = v !== currentView;
+  currentView = ['board','timer','results'].includes(h) ? h : 'home';
+  for(const v of ['home','board','timer','results']) document.getElementById('view-' + v).hidden = v !== currentView;
   if(currentView !== 'board') document.body.classList.remove('present');
   renderAll(true);
 }
@@ -808,6 +920,7 @@ function renderAll(force){
   document.getElementById('home-conn').innerHTML = connPill();
   if(currentView === 'board'){ board.render(); if(!document.getElementById('settings').hidden) settings.fill(); }
   if(currentView === 'timer') timer.render(force);
+  if(currentView === 'results') results.render();
 }
 window.addEventListener('hashchange', route);
 Store.on(() => renderAll(false));
