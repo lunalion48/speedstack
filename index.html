@@ -758,6 +758,16 @@ const timer = {
       return;
     }
     const id = this.cls;
+    /* 진행판에서 이 반을 초기화하면 휴대폰 화면도 처음 상태로 돌아갑니다 */
+    const from = (S().boardFrom || {})[boardKey(id, S().event, boardSlots().length)] || 0;
+    if(this.seenFrom === undefined || this.seenCls !== id) { this.seenFrom = from; this.seenCls = id; }
+    else if(from !== this.seenFrom){
+      this.seenFrom = from;
+      this.phase = 'idle'; this.elapsed = 0; this.joined = liveRaw(id, 'c') ? liveRaw(id, 'c').startAt : null;
+      Store.set('live/' + id + '/p', null);
+      toast('진행판에서 초기화했어요.');
+      force = true;
+    }
     /* 중앙에서 이 반 타이머를 시작하면(모두 시작 포함) 휴대폰도 같은 순간부터 재고 정지 버튼을 보여 줍니다 */
     const C = liveRaw(id, 'c');
     if(this.phase === 'idle' && C && C.state === 'run' && this.joined !== C.startAt && Store.now() - C.startAt < 60000){
