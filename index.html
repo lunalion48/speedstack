@@ -42,6 +42,8 @@ button{cursor:pointer}
 .btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
 a.btn{text-decoration:none;color:var(--fg)}
+.btn.startall{background:var(--fg);color:var(--ink);border:0;font-size:17px;padding:10px 22px}
+.btn.startall kbd{color:inherit;border-color:currentColor;opacity:.55}
 .ctrl .go kbd{color:inherit;border-color:currentColor;opacity:.6}
 .btn.ghost{background:transparent}
 .btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
@@ -174,7 +176,7 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
 .big.start{background:var(--accent);color:#0c1220}
 .big.stop{background:var(--fg);color:#0c1220}
 .big.send{background:var(--accent);color:#0c1220}
-.big.again{background:var(--panel-2);color:var(--fg);font-size:24px;padding:16px 10px;border:1px solid var(--line)}
+.big.again{background:var(--panel-2);color:var(--fg);border:1px solid var(--line)}
 .t-manual{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 14px}
 .t-manual summary{cursor:pointer;padding:10px 0;color:var(--muted);font-weight:600}
 .t-manual form{display:flex;gap:8px;padding-bottom:12px}
@@ -220,6 +222,7 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
     <div class="title"><h1 id="b-title"></h1><span class="event-chip" id="b-event"></span></div>
     <div class="tools">
       <span id="b-conn"></span>
+      <button class="btn startall board-only-tools" id="b-startall" type="button">모두 시작 <kbd>Space</kbd></button>
       <button class="btn ghost board-only-tools" id="b-settings" type="button">설정</button>
       <button class="btn ghost" id="b-present" type="button" title="버튼을 숨기고 기록만 보여줍니다">발표 모드</button>
       <button class="btn" id="b-full" type="button">전체 화면 <kbd>F</kbd></button>
@@ -566,6 +569,20 @@ document.getElementById('b-grid').addEventListener('click', e => {
   if(del) delRecord(del.dataset.del);
 });
 document.getElementById('b-full').onclick = toggleFull;
+/* 화면에 나온 모든 반의 중앙 타이머를 같은 순간에 시작합니다. 정지는 반마다 따로 눌러요. */
+function startAll(){
+  const startAt = Store.now(), perf = performance.now();
+  let n = 0;
+  for(const id of activeSlots()){
+    const c = liveRaw(id, 'c');
+    if(c && c.state === 'run') continue;
+    board.local[id] = {startAt, perf};
+    Store.set('live/' + id + '/c', {state:'run', startAt, t:startAt, src:'중앙'});
+    n++;
+  }
+  if(!n) toast('이미 모든 반 타이머가 돌고 있어요.');
+}
+document.getElementById('b-startall').onclick = startAll;
 function toggleFull(){
   try{
     if(document.fullscreenElement) document.exitFullscreen();
@@ -582,6 +599,7 @@ document.addEventListener('keydown', e => {
   const n = parseInt(e.key, 10);
   if(n >= 1 && n <= activeSlots().length){ e.preventDefault(); board.toggle(activeSlots()[n-1]); }
   else if(e.key === 'f' || e.key === 'F' || e.key === 'ㄹ'){ toggleFull(); }
+  else if(e.code === 'Space'){ e.preventDefault(); startAll(); }
 });
 
 /* ---------------- 설정 ---------------- */
@@ -626,7 +644,7 @@ document.getElementById('set-clear-all').onclick = e => {
 const timer = {
   cls:null, phase:'idle', perf:0, startAt:0, elapsed:0, lastTap:0, wake:null,
   init(){ try{ this.cls = localStorage.getItem('ss-my-class'); }catch(e){} },
-  choose(id){ this.cls = id; try{ id ? localStorage.setItem('ss-my-class', id) : localStorage.removeItem('ss-my-class'); }catch(e){} this.phase = 'idle'; this.render(true); },
+  choose(id){ this.cls = id; this.elapsed = 0; try{ id ? localStorage.setItem('ss-my-class', id) : localStorage.removeItem('ss-my-class'); }catch(e){} this.phase = 'idle'; this.render(true); },
   who(){ const i = document.getElementById('t-who'); return i ? i.value.trim() : ''; },
   render(force){
     const root = document.getElementById('view-timer');
@@ -650,15 +668,13 @@ const timer = {
       else if(this.phase === 'stopped') actions = `<button class="big send" type="button" data-act="send">기록 보내기</button><button class="big again" type="button" data-act="again">보내지 않고 다시 하기</button>`;
       else actions = `<button class="big start" type="button" data-act="start">시작</button>`;
       root.innerHTML = `
-        <div class="t-top"><span class="cls">${esc(nameOf(id))}</span><span id="t-conn"></span><button class="btn ghost" type="button" data-act="change">반 바꾸기</button></div>
+        <div class="t-top"><span class="cls">${esc(nameOf(id))}</span><span id="t-conn"></span></div>
         <div class="t-where" id="t-where"></div>
-        <div class="t-who"><input id="t-who" placeholder="학생 이름 또는 번호 (선택)" maxlength="16" autocomplete="off" ${this.phase === 'run' ? 'disabled' : ''}></div>
         <div class="t-clock"><div class="t" id="t-t">0.00<span class="u">초</span></div><div id="t-state"></div></div>
-        <div class="t-actions">${actions}</div>
+        <div class="t-actions">${actions}${this.phase === 'run' ? '' : '<button class="big again" type="button" data-act="change">반 바꾸기</button>'}</div>
         <details class="t-manual" id="t-manual"><summary>스택매트 타이머 숫자를 직접 입력하기</summary>
           <form id="t-man-form"><input id="t-man" inputmode="decimal" placeholder="7.42"><button class="btn" type="submit">보내기</button></form></details>
         <div class="t-list"><h3>${esc(nameOf(id))} 기록</h3><ul class="recs" id="t-recs"></ul></div>`;
-      document.getElementById('t-who').value = whoVal;
     }
     document.getElementById('t-conn').innerHTML = connPill();
     const sl = slotOf(id);
@@ -668,12 +684,13 @@ const timer = {
     const stEl = document.getElementById('t-state');
     stEl.innerHTML = this.phase === 'run' ? '<span class="pill run"><span class="dot"></span>측정 중 · 진행판에 보이는 중</span>'
       : this.phase === 'stopped' ? '<span class="pill stop"><span class="dot"></span>확인 후 보내 주세요</span>'
+      : this.elapsed ? `<span class="pill done"><span class="dot"></span>진행판에 보냄 · 반 최고 ${fmt(st.best)}초</span>`
       : `<span class="hint">반 최고 기록 ${st.n ? fmt(st.best) + '초' : '없음'}</span>`;
     this.tick();
   },
   tick(){
     const el = document.getElementById('t-t'); if(!el) return;
-    const ms = this.phase === 'run' ? performance.now() - this.perf : this.phase === 'stopped' ? this.elapsed : 0;
+    const ms = this.phase === 'run' ? performance.now() - this.perf : this.elapsed;
     el.innerHTML = fmt(ms) + '<span class="u">초</span>';
   },
   act(a){
@@ -682,17 +699,15 @@ const timer = {
     this.lastTap = now;
     const id = this.cls;
     if(a === 'start'){
-      this.phase = 'run'; this.perf = now; this.startAt = Store.now();
+      this.phase = 'run'; this.perf = now; this.elapsed = 0; this.startAt = Store.now();
       Store.set('live/' + id + '/p', {state:'run', startAt:this.startAt, t:this.startAt, who:this.who(), src:'선생님'});
       this.keepAwake();
     } else if(a === 'stop'){
-      this.elapsed = Math.round(now - this.perf); this.phase = 'stopped';
-      Store.set('live/' + id + '/p', {state:'stop', elapsed:this.elapsed, startAt:this.startAt, t:Store.now(), who:this.who(), src:'선생님'});
-    } else if(a === 'send'){
+      /* 정지하면 바로 진행판으로 보냅니다. 잘못 잰 기록은 아래 목록의 ✕로 지워요. */
+      this.elapsed = Math.round(now - this.perf); this.phase = 'idle';
       Store.push('records/' + id, {ms:this.elapsed, who:this.who(), at:Store.now(), startAt:this.startAt, kind:'p', src:'선생님'});
       Store.set('live/' + id + '/p', {state:'done', elapsed:this.elapsed, startAt:this.startAt, t:Store.now(), who:this.who(), src:'선생님'});
-      toast(`${nameOf(id)} ${fmt(this.elapsed)}초를 진행판에 보냈어요.`);
-      this.phase = 'idle';
+      toast(`${nameOf(id)} ${fmt(this.elapsed)}초를 보냈어요. 잘못 쟀으면 아래 목록에서 ✕를 누르세요.`);
       const w = document.getElementById('t-who'); if(w) w.value = '';
     } else if(a === 'again'){
       Store.set('live/' + id + '/p', null); this.phase = 'idle';
