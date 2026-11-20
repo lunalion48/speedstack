@@ -702,6 +702,16 @@ const timer = {
       return;
     }
     const id = this.cls;
+    /* 중앙에서 이 반 타이머를 시작하면(모두 시작 포함) 휴대폰도 같은 순간부터 재고 정지 버튼을 보여 줍니다 */
+    const C = liveRaw(id, 'c');
+    if(this.phase === 'idle' && C && C.state === 'run' && this.joined !== C.startAt && Store.now() - C.startAt < 60000){
+      this.joined = C.startAt;
+      this.phase = 'run'; this.startAt = C.startAt; this.elapsed = 0;
+      this.perf = performance.now() - Math.max(0, Store.now() - C.startAt);
+      this.lastTap = performance.now();
+      Store.set('live/' + id + '/p', {state:'run', startAt:C.startAt, t:Store.now(), who:'', src:'선생님'});
+      this.keepAwake();
+    }
     root.style.setProperty('--accent', slotOf(id) ? colorOf(id) : 'var(--muted)');
     if(force || this.built !== id + this.phase){
       const whoVal = this.who();
@@ -742,7 +752,7 @@ const timer = {
     this.lastTap = now;
     const id = this.cls;
     if(a === 'start'){
-      this.phase = 'run'; this.perf = now; this.elapsed = 0; this.startAt = Store.now();
+      this.phase = 'run'; this.perf = now; this.elapsed = 0; this.joined = null; this.startAt = Store.now();
       Store.set('live/' + id + '/p', {state:'run', startAt:this.startAt, t:this.startAt, who:this.who(), src:'선생님'});
       this.keepAwake();
     } else if(a === 'stop'){
