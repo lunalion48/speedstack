@@ -95,7 +95,7 @@ kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line);border-
 .card::before{content:"";height:10px;background:var(--accent);flex:none}
 .card.lead{border:7px solid #ffd700;box-shadow:0 0 0 3px #fff3b0,0 0 36px 8px color-mix(in srgb,#ffd700 75%,transparent),0 0 90px 16px color-mix(in srgb,#ffd700 35%,transparent);z-index:1}
 .card.second{border:6px solid #e4e9f2;box-shadow:0 0 0 2px #ffffff,0 0 30px 6px color-mix(in srgb,#d9dee8 60%,transparent)}
-.card.lead::after,.card.second::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);background-size:300% 100%;background-position:150% 0;opacity:0}
+.card.lead::after,.card.second::after{content:"";position:absolute;top:0;bottom:0;left:0;width:60%;pointer-events:none;background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,.22) 50%,transparent 100%);transform:translateX(-120%);will-change:transform}
 .badge.first{background:#ffd700;color:var(--ink)}
 .badge.second{background:#d9dee8;color:var(--ink)}
 @media (prefers-reduced-motion:no-preference){
@@ -104,7 +104,7 @@ kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line);border-
   .card.second::after{animation:shine 4.5s ease-in-out infinite 1.2s}
 }
 @keyframes goldglow{50%{box-shadow:0 0 0 3px #fff3b0,0 0 52px 12px color-mix(in srgb,#ffd700 90%,transparent),0 0 120px 22px color-mix(in srgb,#ffd700 45%,transparent)}}
-@keyframes shine{0%{background-position:150% 0;opacity:1}45%{background-position:-50% 0;opacity:1}46%,100%{opacity:0}}
+@keyframes shine{0%{transform:translateX(-120%)}45%,100%{transform:translateX(220%)}}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 0}
 .card-head .nm{font-family:var(--f-display);font-size:clamp(44px,24cqw,140px);line-height:1;color:var(--accent);min-width:0;white-space:nowrap}
 @container (max-width:340px){.card-head .nm .chev{font-size:11px;padding:1px 5px}.card-head{padding:12px 10px 0;gap:6px}}
@@ -204,6 +204,9 @@ kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line);border-
   .grid{grid-template-columns:minmax(0,1fr)}
   #view-board{height:auto}
   .recs{max-height:220px}
+  /* 휴대폰: 화면을 내릴 때 흔들리지 않도록 끌어서 바꾸기와 테두리 깜빡임은 끄기 (바꾸기 버튼은 그대로) */
+  .card-head .nm.pickbtn{touch-action:auto;cursor:pointer}
+  .card.lead{animation:none}
 }
 </style>
 </head>
@@ -598,7 +601,7 @@ const drag = {src:null, x:0, y:0, on:false, ghost:null, over:null, justDropped:0
 };
 document.getElementById('b-grid').addEventListener('pointerdown', e => {
   const pk = e.target.closest('[data-pick]');
-  if(!pk || e.button > 0 || !classAt(pk.dataset.pick)) return;
+  if(!pk || e.button > 0 || !classAt(pk.dataset.pick) || matchMedia('(max-width:620px)').matches) return;
   drag.src = pk.dataset.pick; drag.x = e.clientX; drag.y = e.clientY; drag.on = false;
 });
 document.addEventListener('pointermove', e => {
