@@ -93,29 +93,37 @@ kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line);border-
 .grid{flex:1;display:grid;gap:12px;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));min-height:0}
 .card{--accent:var(--fg);position:relative;display:flex;flex-direction:column;background:var(--panel);border-radius:var(--r);border:1px solid var(--line);overflow:hidden;container-type:inline-size;min-width:0;min-height:0}
 .card::before{content:"";height:10px;background:var(--accent);flex:none}
-.card.lead{border:5px solid #ffd700;box-shadow:0 0 0 2px #fff3b0,0 0 28px 4px color-mix(in srgb,#ffd700 70%,transparent),0 0 70px 8px color-mix(in srgb,#ffd700 30%,transparent)}
-.card.second{border:5px solid #d9dee8;box-shadow:0 0 0 2px #ffffff,0 0 24px 3px color-mix(in srgb,#d9dee8 55%,transparent)}
+.card.lead{border:7px solid #ffd700;box-shadow:0 0 0 3px #fff3b0,0 0 36px 8px color-mix(in srgb,#ffd700 75%,transparent),0 0 90px 16px color-mix(in srgb,#ffd700 35%,transparent);z-index:1}
+.card.second{border:6px solid #e4e9f2;box-shadow:0 0 0 2px #ffffff,0 0 30px 6px color-mix(in srgb,#d9dee8 60%,transparent)}
+.card.lead::after,.card.second::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);background-size:300% 100%;background-position:150% 0;opacity:0}
+.badge.first{background:#ffd700;color:var(--ink)}
 .badge.second{background:#d9dee8;color:var(--ink)}
-@media (prefers-reduced-motion:no-preference){.card.lead{animation:goldglow 2.4s ease-in-out infinite}}
-@keyframes goldglow{50%{box-shadow:0 0 0 2px #fff3b0,0 0 40px 8px color-mix(in srgb,#ffd700 85%,transparent),0 0 90px 14px color-mix(in srgb,#ffd700 40%,transparent)}}
+@media (prefers-reduced-motion:no-preference){
+  .card.lead{animation:goldglow 2.4s ease-in-out infinite}
+  .card.lead::after{animation:shine 3.2s ease-in-out infinite}
+  .card.second::after{animation:shine 4.5s ease-in-out infinite 1.2s}
+}
+@keyframes goldglow{50%{box-shadow:0 0 0 3px #fff3b0,0 0 52px 12px color-mix(in srgb,#ffd700 90%,transparent),0 0 120px 22px color-mix(in srgb,#ffd700 45%,transparent)}}
+@keyframes shine{0%{background-position:150% 0;opacity:1}45%{background-position:-50% 0;opacity:1}46%,100%{opacity:0}}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 0}
-.card-head .nm{font-family:var(--f-display);font-size:clamp(26px,12cqw,54px);line-height:1;color:var(--accent);min-width:0;overflow-wrap:anywhere}
+.card-head .nm{font-family:var(--f-display);font-size:clamp(44px,24cqw,140px);line-height:1;color:var(--accent);min-width:0;white-space:nowrap}
+@container (max-width:340px){.card-head .nm .chev{font-size:11px;padding:1px 5px}.card-head{padding:12px 10px 0;gap:6px}}
 .badge{font-family:var(--f-display);font-size:clamp(16px,6cqw,26px);padding:4px 12px;border-radius:9px;background:var(--panel-2);color:var(--muted);flex:none}
 .badge.first{background:#ffd700;color:var(--ink)}
-.clock{padding:6px 16px 0;display:grid;gap:4px}
-.clock .t{font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(56px,27cqw,170px);line-height:.95;letter-spacing:-.01em}
+.clock{padding:6px 12px 0;display:grid;gap:4px;flex:1;align-content:center;justify-items:center}
+.clock .t{font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(72px,35cqw,320px);line-height:.95;letter-spacing:-.01em}
 .clock .t .u{font-size:.32em;color:var(--muted);margin-left:.08em;font-weight:600}
 .clock .t.idle{color:color-mix(in srgb,var(--fg) 28%,transparent)}
 .clock .meta{display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap}
 .clock .who{color:var(--muted);font-size:14px}
-.bestline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:14px 16px 0;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bestline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:8px 16px 0;padding:5px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .bestline span{font-size:14px;color:var(--muted);font-weight:600}
-.bestline b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:clamp(28px,13cqw,52px);font-weight:700;line-height:1;color:var(--accent)}
-.recs{list-style:none;margin:0;padding:8px 16px;flex:1;overflow:auto;min-height:60px;display:grid;align-content:start;gap:2px}
-.recs li{display:grid;grid-template-columns:minmax(0,1fr) auto 26px;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
+.bestline b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:clamp(20px,8cqw,32px);font-weight:700;line-height:1;color:var(--accent)}
+.recs{list-style:none;margin:0;padding:4px 16px 6px;flex:none;overflow:hidden;min-height:132px;display:grid;align-content:start;gap:2px}
+.recs li{display:grid;grid-template-columns:minmax(0,1fr) auto 26px;align-items:center;gap:8px;padding:1px 0;border-bottom:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
 .recs .no{font-family:var(--f-num);color:var(--muted);font-size:14px}
 .recs .w{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;display:flex;gap:6px;align-items:center}
-.recs .v{font-family:var(--f-num);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums}
+.recs .v{font-family:var(--f-num);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
 .recs li.best .v{color:var(--accent)}
 .recs .best-tag{font-size:11px;font-weight:700;color:var(--ink);background:var(--accent);border-radius:5px;padding:0 5px}
 .recs .x{border:0;background:transparent;color:var(--muted);width:26px;height:26px;border-radius:6px;opacity:.5}
@@ -126,7 +134,6 @@ kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line);border-
 .ctrl .go.running{background:var(--fg)}
 .ctrl form{display:flex;gap:6px;flex:1 1 150px;min-width:0}
 .ctrl input{min-width:0;flex:1;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-family:var(--f-num);font-size:18px}
-body.present .ctrl,body.present .recs .x,body.present .board-only-tools{display:none}
 
 /* ---------- 설정 ---------- */
 .sheet-bg{position:fixed;inset:0;background:color-mix(in srgb,#000 55%,transparent);display:grid;place-items:center;z-index:20;padding:16px}
@@ -140,10 +147,12 @@ body.present .ctrl,body.present .recs .x,body.present .board-only-tools{display:
 .seg button[aria-pressed=true]{background:var(--fg);color:var(--ink)}
 .names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .card-head .nm.pickbtn{background:transparent;border:0;padding:0;text-align:left;display:flex;align-items:center;gap:8px;cursor:pointer}
+.card-head .nm.pickbtn{touch-action:none;cursor:grab}
+.card.drop-target{outline:5px dashed var(--fg);outline-offset:-10px}
+.card.drag-src{opacity:.45}
+.drag-ghost{position:fixed;z-index:40;pointer-events:none;font-family:var(--f-display);font-size:44px;line-height:1;padding:10px 18px;border-radius:14px;background:var(--panel-2);color:var(--accent);border:3px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.5);transform:translate(-50%,-60%) rotate(-3deg)}
 .card-head .nm .chev{font-family:var(--f-body);font-size:14px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:2px 8px;white-space:nowrap}
 .card-head .nm.empty{color:var(--muted)}
-body.present .card-head .nm .chev{display:none}
-body.present .card-head .nm.pickbtn{pointer-events:none}
 .picker{position:absolute;inset:10px 0 0;background:color-mix(in srgb,var(--panel) 96%,transparent);z-index:5;padding:16px;display:grid;align-content:start;gap:12px}
 .picker h3{margin:0;font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .picker .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -188,30 +197,6 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
 .t-manual input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--f-num);font-size:22px}
 .t-list h3{font-size:14px;color:var(--muted);margin:4px 0;font-weight:600}
 .t-list .recs{padding:0}
-/* ---------- 결과표 ---------- */
-.evtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:640px}
-.evtabs button{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 8px;font-family:var(--f-num);font-weight:700;font-size:24px;color:var(--muted);display:grid;gap:2px}
-.evtabs button small{font-family:var(--f-body);font-size:12px;font-weight:500}
-.cnttabs{justify-self:start}
-.cnttabs button{font-size:16px;padding:10px 22px}
-.cnttabs button[aria-selected=true]{background:var(--fg);color:var(--ink)}
-.evtabs button[aria-selected=true]{background:var(--fg);color:var(--ink);border-color:transparent}
-#view-results .res{max-width:1400px;margin:0 auto;display:grid;gap:14px}
-.res-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
-.res-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-.res-table th,.res-table td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-.res-table th{font-size:13px;color:var(--muted);font-weight:600;background:var(--panel-2);position:sticky;top:0}
-.res-table th:nth-child(-n+2),.res-table td:nth-child(-n+2){text-align:left}
-.res-table tr:last-child td{border-bottom:0}
-.res-table .rcol{font-family:var(--f-display);font-size:20px;width:60px}
-.res-table .rname{font-family:var(--f-display);font-size:22px}
-.res-table .best{font-family:var(--f-num);font-weight:700;font-size:28px}
-.res-table .t{font-family:var(--f-num);font-size:20px;color:var(--muted)}
-.res-table .t.is-best{color:var(--fg);font-weight:700}
-.res-table tr.p1 .rcol{color:#ffd700}.res-table tr.p1 .best{color:#ffd700}
-.res-table tr.p2 .rcol{color:#d9dee8}
-.res-table tr.p3 .rcol{color:#e3a36b}
-.res-table tr.none td{color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--ink);padding:12px 18px;border-radius:12px;font-weight:700;z-index:30;max-width:calc(100% - 32px);text-align:center}
 
 @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
@@ -238,11 +223,6 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
         <b>선생님 타이머</b>
         <span>휴대폰이나 태블릿에서 엽니다. 우리 반을 고르고 시작/정지를 누르면 기록이 진행판으로 갑니다.</span>
       </a>
-      <a class="home-card" href="#results">
-        <div class="cups"><i class="cup" style="background:var(--gold)"></i></div>
-        <b>결과표</b>
-        <span>1반부터 8반까지 순위, 최고 기록, 회차별 기록을 한 표로 봅니다. 엑셀로 복사할 수 있어요.</span>
-      </a>
     </div>
     <div class="home-note">
       <span id="home-conn"></span>
@@ -260,9 +240,7 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
       <button class="btn stopall board-only-tools" id="b-stopall" type="button">모두 멈춤 <kbd>Enter</kbd></button>
       <button class="btn danger board-only-tools" id="b-resetall" type="button">전체 초기화</button>
       <button class="btn ghost board-only-tools" id="b-settings" type="button">설정</button>
-      <button class="btn ghost" id="b-present" type="button" title="버튼을 숨기고 기록만 보여줍니다">발표 모드</button>
       <button class="btn" id="b-full" type="button">전체 화면 <kbd>F</kbd></button>
-      <a class="btn ghost board-only-tools" href="#results">결과표</a>
       <a class="btn ghost board-only-tools" href="#home">처음으로</a>
     </div>
   </div>
@@ -273,18 +251,6 @@ body.present .card-head .nm.pickbtn{pointer-events:none}
 
 <div id="view-timer" class="view" hidden></div>
 
-<div id="view-results" class="view" hidden>
-  <div class="res">
-    <div class="bar">
-      <div class="title"><h1 id="r-title"></h1></div>
-      <div class="tools"><span id="r-conn"></span><button class="btn" type="button" id="r-copy">엑셀용으로 복사</button><button class="btn danger" type="button" id="r-reset">이 표 초기화</button><a class="btn ghost" href="#board">진행판</a><a class="btn ghost" href="#home">처음으로</a></div>
-    </div>
-    <div class="evtabs" id="r-tabs" role="tablist"></div>
-    <div class="seg cnttabs" id="r-cnt" role="tablist"></div>
-    <p class="hint">순위는 반마다 가장 빠른 기록으로 매겨요. 기록이 들어오면 표가 바로 바뀌어요.</p>
-    <div class="res-wrap"><table class="res-table" id="r-table"></table></div>
-  </div>
-</div>
 
 <div class="sheet-bg" id="settings" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="set-h">
@@ -419,7 +385,10 @@ function seedExamples(){
 }
 
 /* ---------------- 공통 계산 ---------------- */
-const S = () => ({...DEFAULTS, ...(Store.state.settings || {})});
+const OLD_TITLES = ['', '우리 학년 스피드스태킹 대회'];   /* 예전 기본 이름이 서버에 남아 있으면 새 기본 이름으로 */
+const S = () => { const s = {...DEFAULTS, ...(Store.state.settings || {})};
+  if(OLD_TITLES.includes(String(s.title || '').trim())) s.title = DEFAULTS.title;
+  return s; };
 const boardSlots = () => SLOTS.slice(0, S().count === 2 ? 2 : 4);
 const classAt = slot => { const k = (S().slots || {})[slot]; return CLASSES.includes(k) ? k : null; };
 const slotOf = id => boardSlots().find(sl => classAt(sl) === id) || null;
@@ -430,7 +399,7 @@ const colorOf = id => { const sl = slotOf(id); return sl ? SLOT_COLORS[sl] : 'va
 /* 4팀 경기와 2팀 경기도 따로 셉니다. 표시가 없는 옛 기록은 4팀으로 봅니다. */
 const evOf = x => x.ev || '3-3-3';
 const cntOf = x => x.cnt === 2 ? 2 : 4;
-/* 진행판 초기화는 기록을 지우지 않고 "이 시각 이후 기록만 진행판에 보이기"로 처리해요. 결과표에는 그대로 남아요. */
+/* 진행판 초기화는 기록을 지우지 않고 "이 시각 이후 기록만 진행판에 보이기"로 처리해요. 기록 자체는 그대로 남아요. */
 const boardKey = (id, ev, cnt) => `${id}_${ev}_${cnt}`.replace(/[.#$\[\]\/]/g, '');
 function recordsOf(id, ev, cnt){
   const forBoard = !ev;   /* 종목을 지정하지 않으면 진행판·휴대폰용(초기화 이후 기록만) */
@@ -529,13 +498,13 @@ const board = {
           <div class="opts">${CLASSES.map(k => { const o = slotOf(k); return `<button type="button" data-assign="${sl}:${k}" aria-pressed="${k === id}">${esc(nameOf(k))}${o && o !== sl ? `<small>${SLOT_LABELS[o]}에 있음 · 자리 바꾸기</small>` : ''}</button>`; }).join('')}</div>
           <button class="btn ghost" type="button" data-assign="${sl}:" style="justify-self:start">이 칸 비우기</button></div>` : '';
       if(!id) return `
-      <section class="card" id="slot-${sl}" style="--accent:${SLOT_COLORS[sl]}">
+      <section class="card" id="slot-${sl}" data-slot="${sl}" style="--accent:${SLOT_COLORS[sl]}">
         <div class="card-head"><button class="nm pickbtn empty" type="button" data-pick="${sl}">반 고르기 <span class="chev">눌러서 선택</span></button></div>
         <div class="clock"><div class="t idle">–</div></div>${picker}
       </section>`;
       return `
-      <section class="card" id="card-${id}" style="--accent:${SLOT_COLORS[sl]}">
-        <div class="card-head"><button class="nm pickbtn" type="button" data-pick="${sl}" title="다른 반으로 바꾸기">${esc(nameOf(id))} <span class="chev">바꾸기</span></button><div class="badge" data-badge>–</div></div>
+      <section class="card" id="card-${id}" data-slot="${sl}" style="--accent:${SLOT_COLORS[sl]}">
+        <div class="card-head"><button class="nm pickbtn" type="button" data-pick="${sl}" title="누르면 다른 반으로 바꾸기 · 끌어서 다른 칸에 놓으면 자리 맞바꾸기">${esc(nameOf(id))} <span class="chev">바꾸기</span></button><div class="badge" data-badge>–</div></div>
         <div class="clock"><div class="t idle" data-t>0.00<span class="u">초</span></div><div class="meta" data-meta></div></div>
         <div class="bestline"><span>최고 기록</span><b data-best>–</b></div>
         <ul class="recs" data-recs></ul>
@@ -612,7 +581,58 @@ const board = {
     }
   }
 };
+/* 반 이름을 끌어서 다른 칸에 놓으면 두 반 자리 맞바꾸기 (마우스·터치) */
+const drag = {src:null, x:0, y:0, on:false, ghost:null, over:null, justDropped:0,
+  slotAt(x, y){ const el = document.elementFromPoint(x, y); const c = el && el.closest('#b-grid .card[data-slot]'); return c ? c.dataset.slot : null; },
+  mark(sl){
+    if(this.over === sl) return;
+    document.querySelectorAll('#b-grid .card.drop-target').forEach(c => c.classList.remove('drop-target'));
+    this.over = sl;
+    if(sl && sl !== this.src){ const c = document.querySelector(`#b-grid .card[data-slot="${sl}"]`); if(c) c.classList.add('drop-target'); }
+  },
+  end(){
+    if(this.ghost) this.ghost.remove();
+    document.querySelectorAll('#b-grid .card.drop-target,#b-grid .card.drag-src').forEach(c => c.classList.remove('drop-target','drag-src'));
+    this.src = null; this.on = false; this.ghost = null; this.over = null;
+  }
+};
+document.getElementById('b-grid').addEventListener('pointerdown', e => {
+  const pk = e.target.closest('[data-pick]');
+  if(!pk || e.button > 0 || !classAt(pk.dataset.pick)) return;
+  drag.src = pk.dataset.pick; drag.x = e.clientX; drag.y = e.clientY; drag.on = false;
+});
+document.addEventListener('pointermove', e => {
+  if(!drag.src) return;
+  if(!drag.on){
+    if(Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 10) return;
+    drag.on = true; board.pickOpen = null;
+    const card = document.querySelector(`#b-grid .card[data-slot="${drag.src}"]`);
+    if(card) card.classList.add('drag-src');
+    drag.ghost = document.createElement('div'); drag.ghost.className = 'drag-ghost';
+    drag.ghost.style.setProperty('--accent', SLOT_COLORS[drag.src]);
+    drag.ghost.textContent = nameOf(classAt(drag.src)); document.body.appendChild(drag.ghost);
+  }
+  e.preventDefault();
+  drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+  drag.mark(drag.slotAt(e.clientX, e.clientY));
+});
+document.addEventListener('pointerup', e => {
+  if(!drag.src) return;
+  if(drag.on){
+    const from = drag.src, to = drag.slotAt(e.clientX, e.clientY);
+    drag.justDropped = Date.now();
+    if(to && to !== from){
+      const a = classAt(from), b = classAt(to);
+      Store.set('settings/slots/' + to, a);
+      Store.set('settings/slots/' + from, b || null);
+      toast(b ? `${nameOf(a)}과 ${nameOf(b)} 자리를 바꿨어요.` : `${nameOf(a)}을 ${SLOT_LABELS[to]}으로 옮겼어요.`);
+    }
+  }
+  drag.end(); board.render();
+});
+document.addEventListener('pointercancel', () => { if(drag.src){ drag.end(); board.render(); } });
 document.getElementById('b-grid').addEventListener('click', e => {
+  if(Date.now() - drag.justDropped < 400) return;
   const pk = e.target.closest('[data-pick]');
   if(pk){ board.pickOpen = board.pickOpen === pk.dataset.pick ? null : pk.dataset.pick; return board.render(); }
   if(e.target.closest('[data-pickclose]')){ board.pickOpen = null; return board.render(); }
@@ -632,7 +652,7 @@ document.getElementById('b-grid').addEventListener('click', e => {
   if(rs) armed(rs, '한 번 더 누르면 지워져요', '초기화', () => {
     const id = rs.dataset.reset;
     clearEvent([id]); Store.set('live/' + id, null); delete board.local[id];
-    toast(`${nameOf(id)} 진행판을 비웠어요. 결과표 기록은 그대로예요.`);
+    toast(`${nameOf(id)} 진행판을 비웠어요.`);
   });
 });
 /* 실수로 지우지 않도록 4초 안에 두 번 눌러야 지워집니다 */
@@ -643,7 +663,7 @@ function armed(btn, warn, label, action){
 }
 document.getElementById('b-resetall').onclick = e => armed(e.currentTarget, '한 번 더 누르면 진행판이 비워져요', '전체 초기화', () => {
   clearEvent(CLASSES); Store.set('live', null); board.local = {};
-  toast('진행판을 모두 비웠어요. 결과표 기록은 그대로예요.');
+  toast('진행판을 모두 비웠어요.');
 });
 function clearEvent(ids){
   const ev = S().event, cnt = boardSlots().length, now = Store.now();
@@ -687,10 +707,6 @@ function toggleFull(){
     else document.documentElement.requestFullscreen().catch(() => toast('이 화면에서는 전체 화면을 쓸 수 없어요. 브라우저의 F11을 눌러 주세요.'));
   }catch(e){ toast('브라우저의 F11 키로 전체 화면을 켜 주세요.'); }
 }
-document.getElementById('b-present').onclick = () => {
-  const on = document.body.classList.toggle('present');
-  document.getElementById('b-present').textContent = on ? '진행 모드' : '발표 모드';
-};
 document.addEventListener('keydown', e => {
   if(currentView !== 'board' || e.target.closest('input,textarea,select') || !document.getElementById('settings').hidden) return;
   if(e.metaKey || e.ctrlKey || e.altKey) return;
@@ -860,69 +876,12 @@ document.addEventListener('keydown', e => {
   if(timer.phase === 'idle') timer.act('start'); else if(timer.phase === 'run') timer.act('stop');
 });
 
-/* ---------------- 결과표 ---------------- */
-function resultRows(ev, cnt){
-  const rows = CLASSES.map(id => ({id, st:statsOf(id, ev, cnt)}));
-  rows.sort((a, b) => (a.st.n ? a.st.best : Infinity) - (b.st.n ? b.st.best : Infinity) || CLASSES.indexOf(a.id) - CLASSES.indexOf(b.id));
-  let place = 0, prev = null;
-  rows.forEach((r, i) => { if(!r.st.n) return; const c = Math.floor(r.st.best/10); if(c !== prev){ place = i + 1; prev = c; } r.place = place; });
-  return rows;
-}
-const results = {
-  ev:null, cnt:null,
-  render(){
-    const s = S();
-    const ev = this.ev || s.event, cnt = this.cnt || boardSlots().length;
-    document.getElementById('r-title').textContent = s.title + ' 결과';
-    document.getElementById('r-conn').innerHTML = connPill();
-    document.getElementById('r-tabs').innerHTML = EVENTS.map(v => {
-      const n = CLASSES.reduce((a, id) => a + recordsOf(id, v, 2).length + recordsOf(id, v, 4).length, 0);
-      return `<button type="button" role="tab" data-ev="${v}" aria-selected="${v === ev}">${v}<small>기록 ${n}개${v === s.event ? ' · 진행 중' : ''}</small></button>`;
-    }).join('');
-    document.getElementById('r-cnt').innerHTML = [4, 2].map(c => {
-      const n = CLASSES.reduce((a, id) => a + recordsOf(id, ev, c).length, 0);
-      return `<button type="button" role="tab" data-cnt="${c}" aria-selected="${c === cnt}">${c}팀 경기 · ${n}개</button>`;
-    }).join('');
-    const rows = resultRows(ev, cnt);
-    const maxN = Math.max(1, ...rows.map(r => r.st.n));
-    const head = `<tr><th>순위</th><th>반</th><th>최고 기록</th><th>기록 수</th>${Array.from({length:maxN}, (_, i) => `<th>${i+1}회</th>`).join('')}</tr>`;
-    const body = rows.map(r => `<tr class="${r.place ? 'p' + r.place : 'none'}">
-      <td class="rcol">${r.place ? r.place + '위' : '–'}</td>
-      <td class="rname">${esc(nameOf(r.id))}</td>
-      <td class="best">${r.st.n ? fmt(r.st.best) : '–'}</td>
-      <td>${r.st.n}</td>
-      ${Array.from({length:maxN}, (_, i) => { const x = r.st.rs[i]; return `<td class="t ${x && x.id === r.st.bestId ? 'is-best' : ''}">${x ? fmt(x.ms) : ''}</td>`; }).join('')}
-    </tr>`).join('');
-    document.getElementById('r-table').innerHTML = `<thead>${head}</thead><tbody>${body}</tbody>`;
-  }
-};
-document.getElementById('r-reset').onclick = e => {
-  const ev = results.ev || S().event, cnt = results.cnt || boardSlots().length;
-  armed(e.currentTarget, `한 번 더 누르면 ${ev} ${cnt}팀 기록이 지워져요`, '이 표 초기화', () => {
-    const recs = Store.state.records || {};
-    for(const id in recs) for(const rid in recs[id]){ const x = recs[id][rid] || {}; if(evOf(x) === ev && cntOf(x) === cnt) Store.set(`records/${id}/${rid}`, null); }
-    toast(`${ev} ${cnt}팀 경기 결과를 지웠어요.`);
-  });
-};
-document.getElementById('r-cnt').addEventListener('click', e => { const b = e.target.closest('[data-cnt]'); if(b){ results.cnt = +b.dataset.cnt; results.render(); } });
-document.getElementById('r-tabs').addEventListener('click', e => { const b = e.target.closest('[data-ev]'); if(b){ results.ev = b.dataset.ev; results.render(); } });
-document.getElementById('r-copy').onclick = async () => {
-  const ev = results.ev || S().event, cnt = results.cnt || boardSlots().length;
-  const rows = resultRows(ev, cnt);
-  const maxN = Math.max(1, ...rows.map(r => r.st.n));
-  const lines = [ev + ' ' + cnt + '팀 경기 결과', ['순위','반','최고 기록','기록 수', ...Array.from({length:maxN}, (_, i) => (i+1) + '회')].join('\t')];
-  for(const r of rows) lines.push([r.place ? r.place + '위' : '', nameOf(r.id), r.st.n ? fmt(r.st.best) : '', r.st.n, ...Array.from({length:maxN}, (_, i) => r.st.rs[i] ? fmt(r.st.rs[i].ms) : '')].join('\t'));
-  try{ await navigator.clipboard.writeText(lines.join('\n')); toast('표를 복사했어요. 엑셀이나 한글 표에 붙여 넣으세요.'); }
-  catch(e){ const sel = window.getSelection(), rg = document.createRange(); rg.selectNode(document.getElementById('r-table')); sel.removeAllRanges(); sel.addRange(rg); toast('표를 선택해 두었어요. Ctrl+C를 눌러 복사하세요.'); }
-};
-
 /* ---------------- 화면 전환 ---------------- */
 let currentView = 'home';
 function route(){
   const h = location.hash.replace('#','');
-  currentView = ['board','timer','results'].includes(h) ? h : 'home';
-  for(const v of ['home','board','timer','results']) document.getElementById('view-' + v).hidden = v !== currentView;
-  if(currentView !== 'board') document.body.classList.remove('present');
+  currentView = ['board','timer'].includes(h) ? h : 'home';
+  for(const v of ['home','board','timer']) document.getElementById('view-' + v).hidden = v !== currentView;
   renderAll(true);
 }
 function renderAll(force){
@@ -930,7 +889,6 @@ function renderAll(force){
   document.getElementById('home-conn').innerHTML = connPill();
   if(currentView === 'board'){ board.render(); if(!document.getElementById('settings').hidden) settings.fill(); }
   if(currentView === 'timer') timer.render(force);
-  if(currentView === 'results') results.render();
 }
 window.addEventListener('hashchange', route);
 Store.on(() => renderAll(false));
