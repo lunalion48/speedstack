@@ -509,8 +509,6 @@ const board = {
       <section class="card" id="card-${id}" data-slot="${sl}" style="--accent:${SLOT_COLORS[sl]}">
         <div class="card-head"><button class="nm pickbtn" type="button" data-pick="${sl}" title="누르면 다른 반으로 바꾸기 · 끌어서 다른 칸에 놓으면 자리 맞바꾸기">${esc(nameOf(id))} <span class="chev">바꾸기</span></button><div class="badge" data-badge>–</div></div>
         <div class="clock"><div class="t idle" data-t>0.00<span class="u">초</span></div><div class="meta" data-meta></div></div>
-        <div class="bestline"><span>최고 기록</span><b data-best>–</b></div>
-        <ul class="recs" data-recs></ul>
         <div class="ctrl">
           <button class="btn go" type="button" data-go="${id}">시작</button>
           <button class="btn danger" type="button" data-reset="${id}">초기화</button>
@@ -542,8 +540,6 @@ const board = {
       badge.className = 'badge' + (r && r.place === 1 ? ' first' : r && r.place === 2 ? ' second' : '');
       card.classList.toggle('lead', !!(r && r.place === 1 && rk.length > 1));
       card.classList.toggle('second', !!(r && r.place === 2));
-      card.querySelector('[data-best]').textContent = st.n ? fmt(st.best) : '–';
-      card.querySelector('[data-recs]').innerHTML = recListHTML(id, st.rs, st.bestId, 4, true);
       const L = liveOf(id);
       const meta = card.querySelector('[data-meta]');
       const who = L && L.who ? `<span class="who">${esc(L.who)}</span>` : '';
