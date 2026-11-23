@@ -807,19 +807,16 @@ const timer = {
         <div class="t-clock"><div class="t" id="t-t">0.00<span class="u">초</span></div><div id="t-state"></div></div>
         <div class="t-actions">${actions}${this.phase === 'run' ? '' : '<button class="big again" type="button" data-act="change">반 바꾸기</button>'}</div>
         <details class="t-manual" id="t-manual"><summary>스택매트 타이머 숫자를 직접 입력하기</summary>
-          <form id="t-man-form"><input id="t-man" inputmode="decimal" placeholder="7.42"><button class="btn" type="submit">보내기</button></form></details>
-        <div class="t-list"><h3>${esc(nameOf(id))} 기록</h3><ul class="recs" id="t-recs"></ul></div>`;
+          <form id="t-man-form"><input id="t-man" inputmode="decimal" placeholder="7.42"><button class="btn" type="submit">보내기</button></form></details>`;
     }
     document.getElementById('t-conn').innerHTML = connPill();
     const sl = slotOf(id);
     document.getElementById('t-where').innerHTML = sl ? `<i></i>중앙 화면 ${SLOT_LABELS[sl]}에 나오고 있어요.` : '지금 중앙 화면에는 이 반이 없어요. 기록은 저장되고, 화면에 띄우면 바로 보여요.';
-    const st = statsOf(id);
-    document.getElementById('t-recs').innerHTML = recListHTML(id, st.rs, st.bestId, 8, true);
     const stEl = document.getElementById('t-state');
     stEl.innerHTML = this.phase === 'run' ? '<span class="pill run"><span class="dot"></span>측정 중 · 진행판에 보이는 중</span>'
       : this.phase === 'stopped' ? '<span class="pill stop"><span class="dot"></span>확인 후 보내 주세요</span>'
-      : this.elapsed ? `<span class="pill done"><span class="dot"></span>진행판에 보냄 · 반 최고 ${fmt(st.best)}초</span>`
-      : `<span class="hint">반 최고 기록 ${st.n ? fmt(st.best) + '초' : '없음'}</span>`;
+      : this.elapsed ? '<span class="pill done"><span class="dot"></span>진행판에 보냄</span>'
+      : '';
     this.tick();
   },
   tick(){
@@ -837,11 +834,11 @@ const timer = {
       Store.set('live/' + id + '/p', {state:'run', startAt:this.startAt, t:this.startAt, who:this.who(), src:'선생님'});
       this.keepAwake();
     } else if(a === 'stop'){
-      /* 정지하면 바로 진행판으로 보냅니다. 잘못 잰 기록은 아래 목록의 ✕로 지워요. */
+      /* 정지하면 바로 진행판으로 보냅니다. */
       this.elapsed = Math.round(now - this.perf); this.phase = 'idle';
       Store.push('records/' + id, {ev:S().event, cnt:boardSlots().length, ms:this.elapsed, who:this.who(), at:Store.now(), startAt:this.startAt, kind:'p', src:'선생님'});
       Store.set('live/' + id + '/p', {state:'done', elapsed:this.elapsed, startAt:this.startAt, t:Store.now(), who:this.who(), src:'선생님'});
-      toast(`${nameOf(id)} ${fmt(this.elapsed)}초를 보냈어요. 잘못 쟀으면 아래 목록에서 ✕를 누르세요.`);
+      toast(`${nameOf(id)} ${fmt(this.elapsed)}초를 보냈어요.`);
       const w = document.getElementById('t-who'); if(w) w.value = '';
     } else if(a === 'again'){
       Store.set('live/' + id + '/p', null); this.phase = 'idle';
